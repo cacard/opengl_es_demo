@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
+import android.widget.RelativeLayout;
 
 /**
  * SurfaceView研究
@@ -56,6 +58,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
                 log("->surfaceDestroyed");
+            }
+        });
+
+        findViewById(R.id.btnAnimation).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, 100);
+                mySurfaceView.setLayoutParams(lp);
             }
         });
     }
