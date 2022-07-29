@@ -4,6 +4,7 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -13,14 +14,17 @@ import javax.microedition.khronos.opengles.GL10;
 public class MainActivity extends AppCompatActivity {
 
     static final String TAG = "_MainActivity_";
-    static int WIDTH = 1080;
-    static int HEIGHT = 1920;
+    int WIDTH = 200;
+    int HEIGHT = 200;
     GLSurfaceView glSurfaceView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        WIDTH = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 300.0f, getResources().getDisplayMetrics());
+        HEIGHT = WIDTH;
 
         glSurfaceView = findViewById(R.id.glSurfaceView);
         // 创建一个2.0的context
@@ -36,14 +40,14 @@ public class MainActivity extends AppCompatActivity {
             public void onSurfaceCreated(GL10 gl, EGLConfig config) {
                 GLES20.glEnable(GL10.GL_DEPTH_TEST); //开启深度测试
                 // 绘制背景色
-                GLES20.glClearColor(0.2f, 0.2f, 0.2f, 1);
+                GLES20.glClearColor(0f, 1f, 0.2f, 1);
                 triangle = new Triangle();
             }
 
             // 类似于窗体改变
             @Override
             public void onSurfaceChanged(GL10 gl, int width, int height) {
-                //GLES20.glViewport(0, 0, WIDTH, HEIGHT);
+                GLES20.glViewport(0, 0, WIDTH, HEIGHT);
             }
 
             // 类似于窗体绘制循环
