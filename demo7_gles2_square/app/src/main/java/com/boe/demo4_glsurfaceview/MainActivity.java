@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
         glSurfaceView.setRenderer(new GLSurfaceView.Renderer() {
 
             Triangle triangle;
+            Square square;
 
             // 启动（一次）
             @Override
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
                 // 绘制背景色
                 GLES20.glClearColor(0f, 1f, 0.2f, 1);
                 triangle = new Triangle();
+                square = new Square();
             }
 
             // 类似于窗体改变
@@ -54,8 +56,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDrawFrame(GL10 gl) {
                 log("->onDrawFrame()");
-                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT|GLES20.GL_DEPTH_BUFFER_BIT);
-                triangle.draw();
+                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+                //triangle.draw();
+                square.draw();
             }
         });
         // 配合glSurfaceView.requestRender()，调用时才更新

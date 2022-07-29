@@ -5,8 +5,9 @@ import android.opengl.GLES20;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
 
-public class Triangle {
+public class Square {
 
     // 顶点Shader
     private static final String vertexShaderCode =
@@ -23,36 +24,39 @@ public class Triangle {
                     "  gl_FragColor = vColor;\n" +
                     "}\n";
 
-    private final FloatBuffer vertexBuffer;
+    private FloatBuffer vertexBuffer;
+    private ShortBuffer drawListBuffer;
 
-    // 每个顶点的有3个float数据
     static final int COORDS_PER_VERTEX = 3;
 
-    static final int SIZE_OF_FLOAT = 4;
+    // 顶点：不重复
+    static float squareCoords[] = {
+            -0.5f, 0.5f, 0.0f,   // top left
+            -0.5f, -0.5f, 0.0f,   // bottom left
+            0.5f, -0.5f, 0.0f,   // bottom right
+            0.5f, 0.5f, 0.0f}; // top right
 
-    // 逆时针定义坐标点
-    static float[] triangleCoords = {   // in counterclockwise order:
-            0.0f, 1f, 0.0f, // top
-            -1f, -1f, 0.0f, // bottom left
-            1f, -1f, 0.0f  // bottom right
-    };
-
-    private final int vertexCount = triangleCoords.length / COORDS_PER_VERTEX;
-    private final int vertexStride = COORDS_PER_VERTEX * 4; // 4 bytes per vertex
-
+    // 顶点索引
+    private short drawOrder[] = {0, 1, 2, 0, 2, 3}; // order to draw vertices
     float[] color = {1, 0.1f, 0.6f, 1f};
-
     int program;
 
-    public Triangle() {
-
+    public Square() {
         // VBO
-        // ----------------------
-        ByteBuffer bb = ByteBuffer.allocateDirect(triangleCoords.length * 4);
+        // ------------
+        ByteBuffer bb = ByteBuffer.allocateDirect(squareCoords.length * 4);
         bb.order(ByteOrder.nativeOrder());
         vertexBuffer = bb.asFloatBuffer();
-        vertexBuffer.put(triangleCoords);
+        vertexBuffer.put(squareCoords);
         vertexBuffer.position(0);
+
+        // EBO?
+        //-------------
+        ByteBuffer dlb = ByteBuffer.allocateDirect(drawOrder.length * 2);
+        dlb.order(ByteOrder.nativeOrder());
+        drawListBuffer = dlb.asShortBuffer();
+        drawListBuffer.put(drawOrder);
+        drawListBuffer.position(0);
 
         // 编译Shader/Program
         program = ShaderHelper.linkProgram(vertexShaderCode, fragmentShaderCode);
@@ -70,7 +74,7 @@ public class Triangle {
                 3, //size:
                 GLES20.GL_FLOAT,
                 false,
-                3 * SIZE_OF_FLOAT, //stride:步长
+                3 * 4, //stride:步长
                 vertexBuffer //数据
         );
 
@@ -80,7 +84,13 @@ public class Triangle {
         GLES20.glUniform4fv(colorHandle, 1, color, 0);
 
         // 绘制
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 3);
+        // 这里使用了drawElements，就是按EBO绘制
+        GLES20.glDrawElements(
+                GLES20.GL_TRIANGLES,
+                drawOrder.length,  //EBO的长度
+                GLES20.GL_UNSIGNED_SHORT, //!EBO的类型
+                drawListBuffer //EBO
+        );
 
         // 释放
         GLES20.glDisableVertexAttribArray(positionHandle);
