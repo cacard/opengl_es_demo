@@ -38,19 +38,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             -0.5f, -0.5f, 0.0f,
             0.5f, -0.5f, 0.0f,
             0.5f, 0.5f, 0.0f,
-    };
+            // 中线
+            -0.5f, 0f, -0.1f,
+            0.5f, 0f, -0.1f,
+            // 两个木槌位置
+            0f, -0.25f, -0.1f,
+            0f, 0.25f, -0.1f
 
-    // 中线
-    float[] middleLine = {
-            // Line 1
-            0f, 7f,
-            9f, 7f,
-    };
-
-    // 两个木槌位置
-    float[] mallets = {
-            4.5f, 2f,
-            4.5f, 12f
     };
 
     private FloatBuffer vertexData = null;
@@ -78,8 +72,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         GLES20.glUseProgram(programId);
 
         // 传值给uniform变量
-//        uColorLocationHandle = GLES20.glGetUniformLocation(programId, "u_color");
-//        GLES20.glUniform4f(uColorLocationHandle, 0f, 1f, 0f, 1f); // Uniform变量设值一般在drawFrame时，因为一般是随帧而变
+        uColorLocationHandle = GLES20.glGetUniformLocation(programId, "u_Color");
+        //GLES20.glUniform4f(uColorLocationHandle, 0f, 1f, 0f, 1f); // Uniform变量设值一般在drawFrame时，因为一般是随帧而变
 
         // VBO
         // -----------------
@@ -121,10 +115,20 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         GLES20.glClearColor(0f, 0f, 0f, 0f);
 
         GLES20.glUseProgram(programId);
-        GLES20.glUniform4f(uColorLocationHandle, 1f, 0f, 0f, 1f);
 
-        // Draw
+        // 绘制面板 [0-6]点位
+        GLES20.glUniform4f(uColorLocationHandle, 0.3f, 0.3f, 0.3f, 1f);
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
+
+        // 绘制中间分割线
+        GLES20.glUniform4f(uColorLocationHandle, 1f, 0f, 0f, 1f);
+        GLES20.glDrawArrays(GLES20.GL_LINES, 6, 2);
+
+        // 绘制木槌
+        GLES20.glUniform4f(uColorLocationHandle, 1f, 1f, 0f, 1f);
+        GLES20.glDrawArrays(GLES20.GL_POINTS, 8, 4);
+
+
 
     }
 }
