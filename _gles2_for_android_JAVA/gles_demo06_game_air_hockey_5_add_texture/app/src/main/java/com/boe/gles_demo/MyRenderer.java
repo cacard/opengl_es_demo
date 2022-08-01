@@ -1,10 +1,12 @@
 package com.boe.gles_demo;
 
+import android.app.Activity;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.util.TypedValue;
+import android.view.View;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -73,6 +75,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+
+        ((Activity) context).findViewById(R.id.btnRotate).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                enableAnim = !enableAnim;
+            }
+        });
 
         sScreenWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 300.0f,
                 context.getResources().getDisplayMetrics());
@@ -179,6 +188,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     float angle = 0;
     long lastTick = System.currentTimeMillis();
+    boolean enableAnim = true;
 
     @Override
     public void onDrawFrame(GL10 gl) {
@@ -188,12 +198,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         GLES20.glUseProgram(programId);
 
-//        // 夹带私货，按时间旋转
-//        if (System.currentTimeMillis() - lastTick > 10) {
-//            angle -= 0.6;
-//            lastTick = System.currentTimeMillis();
-//            applyMVP(angle);
-//        }
+        // 夹带私货，按时间旋转
+        if (enableAnim && System.currentTimeMillis() - lastTick > 10) {
+            angle -= 0.6;
+            lastTick = System.currentTimeMillis();
+            applyMVP(angle);
+        }
 
         // 绘制面板 [0-6]点位
         GLES20.glUniform4f(uColorLocationHandle, 0.3f, 0.3f, 0.3f, 1f);

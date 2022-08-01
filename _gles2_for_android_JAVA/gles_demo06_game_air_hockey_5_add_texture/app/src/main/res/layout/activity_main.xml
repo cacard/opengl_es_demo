@@ -11,4 +11,15 @@
         android:layout_height="match_parent"
         android:layout_centerInParent="true" />
 
+    <TextView
+        android:id="@+id/btnRotate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:background="#55ff0000"
+        android:padding="15dp"
+        android:textColor="@color/white"
+        android:text="旋转" />
+
 </RelativeLayout>
