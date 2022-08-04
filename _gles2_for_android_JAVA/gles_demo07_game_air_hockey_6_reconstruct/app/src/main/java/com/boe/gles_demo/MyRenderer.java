@@ -127,11 +127,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         float angle = -60f;
 
-//        table.use();
 //        table.draw(angle);
 
 
-        divider.use();
         divider.draw(angle);
 
 
