@@ -10,7 +10,6 @@ import com.boe.gles_demo.MatrixHelper;
 import com.boe.gles_demo.R;
 import com.boe.gles_demo.ShaderHelper;
 import com.boe.gles_demo.TextResReader;
-import com.boe.gles_demo.TextureHelper;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -23,8 +22,8 @@ public class ShapeDivider extends BaseShape {
     int aPositionLocation;
 
     float data[] = new float[]{
-            -0.5f, 0f, 0.15f,
-            0.5f, 0f, 0.15f,
+            -0.5f, 0f, 0.05f,
+            0.5f, 0f, 0.05f,
     };
 
     FloatBuffer vertexData;
@@ -38,11 +37,11 @@ public class ShapeDivider extends BaseShape {
         LogHelper.log("=============== ShapeDivider ===============");
         genVBO();
         genProgram();
-        bindData();
+        bindDataOnDraw();
     }
 
 
-    void bindData() {
+    void bindDataOnDraw() {
 
         // Attribute: Position
         // -------------------
@@ -55,7 +54,7 @@ public class ShapeDivider extends BaseShape {
                 false,
                 0, // OR: 3 * SIZE_OF_FLOAT
                 vertexData);
-        //bindDataMVP();
+
     }
 
     void genVBO() {

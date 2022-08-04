@@ -76,10 +76,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 
-        ((Activity) context).findViewById(R.id.btnRotate).setOnClickListener(new View.OnClickListener() {
+        ((Activity) context).runOnUiThread(new Runnable() {
             @Override
-            public void onClick(View v) {
-                enableAnim = !enableAnim;
+            public void run() {
+                ((Activity) context).findViewById(R.id.btnRotate).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        enableAnim = !enableAnim;
+                    }
+                });
             }
         });
 

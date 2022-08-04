@@ -124,13 +124,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         GLES20.glClearColor(0f, 0f, 0f, 0f);
 
+        if (System.currentTimeMillis() - lastTick > 12) {
+            angle -= 1;
+            lastTick = System.currentTimeMillis();
+        }
 
-        float angle = -60f;
-
-//        table.draw(angle);
-
-
-        divider.draw(angle);
+        table.draw(angle);
+       //divider.draw(angle);
 
 
 //        // 绘制面板 [0-6]点位

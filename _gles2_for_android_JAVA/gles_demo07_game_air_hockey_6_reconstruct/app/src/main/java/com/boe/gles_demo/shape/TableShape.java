@@ -2,11 +2,9 @@ package com.boe.gles_demo.shape;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import android.opengl.Matrix;
 
 import com.boe.gles_demo.Constants;
 import com.boe.gles_demo.LogHelper;
-import com.boe.gles_demo.MatrixHelper;
 import com.boe.gles_demo.R;
 import com.boe.gles_demo.ShaderHelper;
 import com.boe.gles_demo.TextResReader;
@@ -31,7 +29,6 @@ public class TableShape extends BaseShape {
             0.5f, 0.8f, 0f, 0.7f, 0.7f, 0.7f, 1f, 0.1f,
             -0.5f, 0.8f, 0f, 0.7f, 0.7f, 0.7f, 0f, 0.1f,
             -0.5f, -0.8f, 0f, 0.7f, 0.7f, 0.7f, 0f, 0.9f
-
     };
 
     private FloatBuffer vertexData = null;
@@ -44,11 +41,12 @@ public class TableShape extends BaseShape {
         this.context = context;
         this.width = width;
         this.height = height;
-        LogHelper.log("=============== ShapeTable ===============");
-        genVBO();
+
         genProgram();
         use();
-        bindData();
+
+        genVBO();
+        bindDataOnDraw();
     }
 
     void genVBO() {
@@ -68,7 +66,7 @@ public class TableShape extends BaseShape {
     int aColorLocationHandle;
     int aUVHandle;
 
-    void bindData() {
+    void bindDataOnDraw() {
 
         // Attribute: Position
         // -------------------
@@ -128,9 +126,12 @@ public class TableShape extends BaseShape {
     }
 
     public void draw(float angle) {
-        GLES20.glUseProgram(programId);
+        use();
+
 
         setMVP(angle);
+
+        bindDataOnDraw();
 
         // 面板纹理，uniform:u_Texture
         int uTextureHandle = GLES20.glGetUniformLocation(programId, "u_Texture");

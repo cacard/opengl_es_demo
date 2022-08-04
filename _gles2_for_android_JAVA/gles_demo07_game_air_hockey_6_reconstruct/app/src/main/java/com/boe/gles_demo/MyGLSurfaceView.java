@@ -27,7 +27,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
         setRenderer(renderer);
 
         // !!! 根据情况设定
-        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+        //setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
         setDebugFlags(GLSurfaceView.DEBUG_LOG_GL_CALLS);
     }
 }
