@@ -6,7 +6,7 @@ import android.util.Log;
 public class ShaderHelper {
 
     // 编译连接vshader/fshader成program
-    static int linkProgram(String vShaderCode, String fShaderCode) {
+    public static int linkProgram(String vShaderCode, String fShaderCode) {
         int vShader = loadVertexShader(vShaderCode);
         int fShader = loadFragmentShader(fShaderCode);
         int program = GLES20.glCreateProgram();

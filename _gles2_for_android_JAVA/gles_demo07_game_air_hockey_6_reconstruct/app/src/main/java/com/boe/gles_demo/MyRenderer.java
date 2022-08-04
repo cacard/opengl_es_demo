@@ -1,15 +1,13 @@
 package com.boe.gles_demo;
 
-import android.app.Activity;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
-import android.opengl.Matrix;
 import android.util.TypedValue;
-import android.view.View;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import com.boe.gles_demo.shape.ShapeDivider;
+import com.boe.gles_demo.shape.TableShape;
+
 import java.nio.FloatBuffer;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -68,6 +66,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private final float[] projectionMatrix = new float[16];
     private int uMatrixLocation;
 
+    TableShape table;
+    ShapeDivider divider;
+
     public MyRenderer(Context context) {
         this.context = context;
     }
@@ -76,12 +77,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 
-        ((Activity) context).findViewById(R.id.btnRotate).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                enableAnim = !enableAnim;
-            }
-        });
+//        ((Activity) context).findViewById(R.id.btnRotate).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                enableAnim = !enableAnim;
+//            }
+//        });
 
         sScreenWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 300.0f,
                 context.getResources().getDisplayMetrics());
@@ -90,68 +91,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         GLES20.glEnable(GL10.GL_DEPTH_TEST); //开启深度测试
         GLES20.glClearColor(0f, 0f, 0f, 1f);
 
-        loadCompileShaderProgram();
-        GLES20.glUseProgram(programId);
 
-        // MVP矩阵
-        uMatrixLocation = GLES20.glGetUniformLocation(programId, "u_Matrix");
-
-        // uniform:u_Color
-        uColorLocationHandle = GLES20.glGetUniformLocation(programId, "u_Color");
-
-        // Texture
-        // ----------------
-        textureId = TextureHelper.loadTexture(context, R.drawable.air_hockey_surface);
-        LogHelper.log("textureId:" + String.valueOf(textureId));
-
-        // VBO
-        // -----------------
-        vertexData = ByteBuffer.allocateDirect(tableVerticesWithTriangles.length * Constants.BYTES_PER_FLOAT)
-                .order(ByteOrder.nativeOrder()).asFloatBuffer();
-        vertexData.put(tableVerticesWithTriangles);
-        vertexData.position(0);
-
-        // Attribute: Position
-        aPositionLocationHandle = GLES20.glGetAttribLocation(programId, "a_Position");
-        GLES20.glEnableVertexAttribArray(aPositionLocationHandle);
-        GLES20.glVertexAttribPointer(
-                aPositionLocationHandle,
-                3, //每个顶点的数据量（一个顶点3个float数据）
-                GLES20.GL_FLOAT,
-                false,
-                8 * Constants.SIZE_OF_FLOAT, // OR: 3 * SIZE_OF_FLOAT
-                vertexData);
-
-        // Attribute: Color
-        aColorLocationHandle = GLES20.glGetAttribLocation(programId, "a_Color");
-        GLES20.glEnableVertexAttribArray(aColorLocationHandle);
-        vertexData.position(3); // !!! 设置偏移
-        GLES20.glVertexAttribPointer(
-                aColorLocationHandle,
-                3, //每个顶点的数据量（一个顶点3个float数据）
-                GLES20.GL_FLOAT,
-                false,
-                8 * Constants.SIZE_OF_FLOAT, // OR: 3 * SIZE_OF_FLOAT
-                vertexData);
-
-        // Attribute: UV
-        aUVHandle = GLES20.glGetAttribLocation(programId, "a_UV");
-        GLES20.glEnableVertexAttribArray(aUVHandle);
-        vertexData.position(6); // !!! 设置偏移
-        GLES20.glVertexAttribPointer(
-                aUVHandle,
-                2, //每个顶点的数据量（一个顶点3个float数据）
-                GLES20.GL_FLOAT,
-                false,
-                8 * Constants.SIZE_OF_FLOAT, // OR: 3 * SIZE_OF_FLOAT
-                vertexData);
 
     }
 
     // 编译shader，在onSurfaceCreate()中调用
     void loadCompileShaderProgram() {
-        String vertexShaderSource = TextResReader.readTextFileFromResource(context, R.raw.vertex_shader);
-        String fragmentShaderSource = TextResReader.readTextFileFromResource(context, R.raw.fragment_shader);
+        String vertexShaderSource = TextResReader.readTextFileFromResource(context, R.raw.table_v_shader);
+        String fragmentShaderSource = TextResReader.readTextFileFromResource(context, R.raw.table_f_shader);
         programId = ShaderHelper.linkProgram(vertexShaderSource, fragmentShaderSource);
     }
 
@@ -161,30 +108,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         sScreenWidth = width;
         sScreenHeight = height;
         GLES20.glViewport(0, 0, width, height);
-        applyMVP(0);
+        table = new TableShape(context, sScreenWidth, sScreenHeight);
+        divider = new ShapeDivider(context, sScreenWidth, sScreenHeight);
     }
 
-    // 透视投影
-    void applyMVP(float angle) {
-        MatrixHelper.perspectiveM(projectionMatrix, 45, (float) sScreenWidth / (float) sScreenHeight, 1f, 10f);
 
-        // Model矩阵变换
-        Matrix.setIdentityM(modelMatrix, 0); // Model矩阵初始为单位矩阵
-        Matrix.translateM(modelMatrix, 0, 0f, 0f, -2f);
-
-        // 对Model矩阵做旋转 ———— 这个其实就是 View 吧，相当于 V * M 了！！！
-        Matrix.translateM(modelMatrix, 0, 0f, 0f, -2.5f);
-        Matrix.rotateM(modelMatrix, 0, angle, 1f, 1, 1f);
-
-        // P * M
-        final float[] temp = new float[16];
-        Matrix.multiplyMM(temp, 0, projectionMatrix, 0, modelMatrix, 0);
-        System.arraycopy(temp, 0, projectionMatrix, 0, temp.length);
-
-        // 传入MVP到Shader
-        // uniform: 传入u_Matrix
-        GLES20.glUniformMatrix4fv(uMatrixLocation, 1, false, projectionMatrix, 0);
-    }
 
     float angle = 0;
     long lastTick = System.currentTimeMillis();
@@ -196,33 +124,35 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         GLES20.glClearColor(0f, 0f, 0f, 0f);
 
-        GLES20.glUseProgram(programId);
 
-        // 夹带私货，按时间旋转
-        if (enableAnim && System.currentTimeMillis() - lastTick > 10) {
-            angle -= 0.6;
-            lastTick = System.currentTimeMillis();
-            applyMVP(angle);
-        }
+        float angle = -60f;
 
-        // 绘制面板 [0-6]点位
-        GLES20.glUniform4f(uColorLocationHandle, 0.3f, 0.3f, 0.3f, 1f);
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, 6);
+//        table.use();
+//        table.draw(angle);
 
-        // 面板纹理，uniform:u_Texture
-        uTextureHandle = GLES20.glGetUniformLocation(programId, "u_Texture");
-        // 纹理传入的是X号纹理，需要先激活0号，再绑定，再传入数据
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE0); //激活0号纹理
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId); //绑定textureId
-        GLES20.glUniform1i(uTextureHandle, 0); //传入数据0（意思是0号纹理）给unifrom值
 
-        // 绘制中间分割线
-        GLES20.glUniform4f(uColorLocationHandle, 1f, 0f, 0f, 1f);
-        GLES20.glDrawArrays(GLES20.GL_LINES, 6, 2);
+        divider.use();
+        divider.draw(angle);
 
-        // 绘制木槌
-        GLES20.glUniform4f(uColorLocationHandle, 1f, 1f, 0f, 1f);
-        GLES20.glDrawArrays(GLES20.GL_POINTS, 8, 4);
+
+//        // 绘制面板 [0-6]点位
+//        GLES20.glUniform4f(uColorLocationHandle, 0.3f, 0.3f, 0.3f, 1f);
+//        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, 6);
+//
+//        // 面板纹理，uniform:u_Texture
+//        uTextureHandle = GLES20.glGetUniformLocation(programId, "u_Texture");
+//        // 纹理传入的是X号纹理，需要先激活0号，再绑定，再传入数据
+//        GLES20.glActiveTexture(GLES20.GL_TEXTURE0); //激活0号纹理
+//        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId); //绑定textureId
+//        GLES20.glUniform1i(uTextureHandle, 0); //传入数据0（意思是0号纹理）给unifrom值
+//
+//        // 绘制中间分割线
+//        GLES20.glUniform4f(uColorLocationHandle, 1f, 0f, 0f, 1f);
+//        GLES20.glDrawArrays(GLES20.GL_LINES, 6, 2);
+//
+//        // 绘制木槌
+//        GLES20.glUniform4f(uColorLocationHandle, 1f, 1f, 0f, 1f);
+//        GLES20.glDrawArrays(GLES20.GL_POINTS, 8, 4);
 
     }
 }
