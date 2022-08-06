@@ -1,4 +1,4 @@
-package com.boe.gles_demo;
+package com.boe.gles_demo.helper;
 
 import android.content.Context;
 import android.content.res.Resources;

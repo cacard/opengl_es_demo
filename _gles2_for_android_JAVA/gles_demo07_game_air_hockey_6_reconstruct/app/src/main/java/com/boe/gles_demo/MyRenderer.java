@@ -6,6 +6,9 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.view.View;
 
+import com.boe.gles_demo.helper.LogHelper;
+import com.boe.gles_demo.helper.ShaderHelper;
+import com.boe.gles_demo.helper.TextResReader;
 import com.boe.gles_demo.shape.Divider;
 import com.boe.gles_demo.shape.Table;
 
@@ -184,22 +187,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         //GLES20.glUseProgram(programId);
 
-        // 夹带私货，按时间旋转
+        // 按时间旋转
         if (enableAnim && System.currentTimeMillis() - lastTick > 10) {
             angle -= 0.6;
             lastTick = System.currentTimeMillis();
-            //CameraHelper.updateShaderMVP(sScreenWidth, sScreenHeight, programId, angle);
         }
 
         table.draw(angle, sScreenWidth, sScreenHeight);
         divider.draw(angle, sScreenWidth, sScreenHeight);
-        // 绘制面板 [0-6]点位
-//        GLES20.glUniform4f(uColorLocationHandle, 0.3f, 0.3f, 0.3f, 1f);
-//        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, 6);
 
-//        // 绘制中间分割线
-//        GLES20.glUniform4f(uColorLocationHandle, 1f, 0f, 0f, 1f);
-//        GLES20.glDrawArrays(GLES20.GL_LINES, 6, 2);
 //
 //        // 绘制木槌
 //        GLES20.glUniform4f(uColorLocationHandle, 1f, 1f, 0f, 1f);

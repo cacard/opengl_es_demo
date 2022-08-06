@@ -1,4 +1,6 @@
-package com.boe.gles_demo;
+package com.boe.gles_demo.helper;
+
+import com.boe.gles_demo.Constants;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

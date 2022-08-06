@@ -1,4 +1,4 @@
-package com.boe.gles_demo;
+package com.boe.gles_demo.helper;
 
 import android.opengl.GLES20;
 import android.util.Log;
