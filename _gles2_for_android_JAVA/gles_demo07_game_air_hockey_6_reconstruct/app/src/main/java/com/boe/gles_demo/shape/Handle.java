@@ -3,10 +3,10 @@ package com.boe.gles_demo.shape;
 import android.content.Context;
 import android.opengl.GLES20;
 
-import com.boe.gles_demo.helper.CameraHelper;
 import com.boe.gles_demo.Constants;
-import com.boe.gles_demo.helper.LogHelper;
 import com.boe.gles_demo.R;
+import com.boe.gles_demo.helper.CameraHelper;
+import com.boe.gles_demo.helper.LogHelper;
 import com.boe.gles_demo.helper.ShaderHelper;
 import com.boe.gles_demo.helper.TextResReader;
 
@@ -14,15 +14,13 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
-/**
- * 分割挡板线
- */
-public class Divider {
+public class Handle {
+
 
     float[] vertexes = {
             // ---X,Y,Z--
-            -0.5f, 0f, 0.005f,
-            0.5f, 0f, 0.005f
+            0f, -0.4f, 0.005f,
+            0f, 0.4f, 0.005f
     };
 
     // 分割线颜色
@@ -39,7 +37,7 @@ public class Divider {
     // 顶点属性：位置属性
     int attribLocationPosition;
 
-    public Divider(Context context) {
+    public Handle(Context context) {
         this.context = context;
 
         // 准备缓冲数据
@@ -86,9 +84,10 @@ public class Divider {
         CameraHelper.updateShaderMVP(width, height, programId, angle);
 
         // 绘制
-        GLES20.glDrawArrays(GLES20.GL_LINES, 0, 2);
+        GLES20.glDrawArrays(GLES20.GL_POINTS, 0, 2);
 
         // 释放顶点属性
         GLES20.glDisableVertexAttribArray(attribLocationPosition);
     }
+
 }
