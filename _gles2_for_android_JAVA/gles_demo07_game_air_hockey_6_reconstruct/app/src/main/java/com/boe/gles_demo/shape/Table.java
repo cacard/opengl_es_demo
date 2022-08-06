@@ -76,9 +76,20 @@ public class Table {
         // 注意的是，这些变量赋值是一次性的，所以放到构造函数里面
 
 
+
+
+
+
+
+    }
+
+
+
+    public void draw(float angle, int width, int height) {
+
         GLES20.glUseProgram(programId);
 
-
+        vertexData.position(0);
 
         // Attribute: Position
         attribLocationPosition = GLES20.glGetAttribLocation(programId, "a_Position");
@@ -104,12 +115,6 @@ public class Table {
                 8 * Constants.SIZE_OF_FLOAT, // OR: 3 * SIZE_OF_FLOAT
                 vertexData);
 
-    }
-
-
-
-    public void draw(float angle, int width, int height) {
-
 
         // 赋值纹理 uniform:u_Texture
         // ----------------
@@ -119,7 +124,11 @@ public class Table {
         GLES20.glUniform1i(uniformTexture, 0); //传入数据0（意思是0号纹理）给unifrom值
 
         CameraHelper.updateShaderMVP(width, height, programId, angle);
+
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, 6);
+
+        GLES20.glDisableVertexAttribArray(attribLocationPosition);
+        GLES20.glDisableVertexAttribArray(attribLocationUV);
 
     }
 }

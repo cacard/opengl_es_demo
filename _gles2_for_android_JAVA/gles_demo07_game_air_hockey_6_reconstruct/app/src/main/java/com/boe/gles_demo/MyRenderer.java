@@ -192,7 +192,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
         table.draw(angle, sScreenWidth, sScreenHeight);
-        //divider.draw(angle, sScreenWidth, sScreenHeight);
+        divider.draw(angle, sScreenWidth, sScreenHeight);
         // 绘制面板 [0-6]点位
 //        GLES20.glUniform4f(uColorLocationHandle, 0.3f, 0.3f, 0.3f, 1f);
 //        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, 6);
