@@ -4,7 +4,7 @@ import android.util.Log;
 
 public class LogHelper {
 
-    static void log(String msg) {
+    public static void log(String msg) {
         Log.i("_MainActivity_", msg);
     }
 

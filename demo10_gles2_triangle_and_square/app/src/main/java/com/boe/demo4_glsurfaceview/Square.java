@@ -38,7 +38,7 @@ public class Square {
 
     // 顶点索引
     private short drawOrder[] = {0, 1, 2, 0, 2, 3}; // order to draw vertices
-    float[] color = {1, 0.1f, 0.6f, 1f};
+    float[] color = {1, 0f, 1f, 0.5f};
     int program;
 
     public Square() {
@@ -60,6 +60,8 @@ public class Square {
 
         // 编译Shader/Program
         program = ShaderHelper.linkProgram(vertexShaderCode, fragmentShaderCode);
+
+
     }
 
     public void draw() {

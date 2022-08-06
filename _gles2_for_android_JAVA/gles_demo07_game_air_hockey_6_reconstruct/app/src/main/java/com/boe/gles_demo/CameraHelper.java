@@ -5,7 +5,7 @@ import android.opengl.Matrix;
 
 public class CameraHelper {
 
-    static void updateShaderMVP(int screenWidth, int screenHeight, int programId, float angle) {
+    public static void updateShaderMVP(int screenWidth, int screenHeight, int programId, float angle) {
 
         final float[] projectionMatrix = new float[16];
         final float[] modelMatrix = new float[16];
