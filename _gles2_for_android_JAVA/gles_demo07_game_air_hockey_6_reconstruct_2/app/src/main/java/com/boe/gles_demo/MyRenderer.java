@@ -9,8 +9,8 @@ import android.view.View;
 import com.boe.gles_demo.helper.CameraHelper;
 import com.boe.gles_demo.helper.LogHelper;
 import com.boe.gles_demo.helper.TextureHelper;
-import com.boe.gles_demo.phyobject.Mallet;
-import com.boe.gles_demo.phyobject.Table;
+import com.boe.gles_demo.shape.Mallet;
+import com.boe.gles_demo.shape.Table;
 import com.boe.gles_demo.shader.ColorShaderProgram;
 import com.boe.gles_demo.shader.TextureShaderProgram;
 

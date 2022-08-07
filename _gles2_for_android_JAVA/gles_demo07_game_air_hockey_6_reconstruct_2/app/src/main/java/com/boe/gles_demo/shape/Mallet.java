@@ -1,4 +1,4 @@
-package com.boe.gles_demo.phyobject;
+package com.boe.gles_demo.shape;
 
 import static android.opengl.GLES20.GL_POINTS;
 import static android.opengl.GLES20.glDrawArrays;
