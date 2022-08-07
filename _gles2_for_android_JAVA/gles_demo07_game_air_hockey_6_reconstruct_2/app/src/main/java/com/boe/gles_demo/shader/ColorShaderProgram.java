@@ -8,6 +8,12 @@ import android.opengl.GLES20;
 import com.boe.gles_demo.R;
 import com.boe.gles_demo.helper.LogHelper;
 
+/**
+ * 颜色值渲染
+ *
+ * - MVP
+ * - 输入颜色
+ */
 public class ColorShaderProgram extends ShaderProgram {
 
     // 顶点属性

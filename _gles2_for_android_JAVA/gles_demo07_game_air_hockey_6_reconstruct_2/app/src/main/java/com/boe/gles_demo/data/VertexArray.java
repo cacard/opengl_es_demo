@@ -12,7 +12,7 @@ import java.nio.FloatBuffer;
 
 /**
  * 顶点数据类
- *
+ * <p>
  * - 放置缓冲数据
  * - 设置顶点属性
  */
@@ -21,6 +21,9 @@ public class VertexArray {
     private final FloatBuffer floatBuffer;
 
     public VertexArray(float[] vertexData) {
+
+        // 将float[]顶点数据转换成FloatBuffer
+        // ------------
         ByteBuffer buffer = ByteBuffer.allocateDirect(vertexData.length * Constants.BYTES_PER_FLOAT);
         buffer = buffer.order(ByteOrder.nativeOrder());
         floatBuffer = buffer.asFloatBuffer();
@@ -42,6 +45,9 @@ public class VertexArray {
         floatBuffer.position(0);
     }
 
+    /**
+     * 重置position
+     */
     public void resetPosition() {
         floatBuffer.position(0);
     }

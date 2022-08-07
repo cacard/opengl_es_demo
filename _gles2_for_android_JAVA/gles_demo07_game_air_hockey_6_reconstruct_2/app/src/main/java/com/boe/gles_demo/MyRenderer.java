@@ -1,18 +1,16 @@
 package com.boe.gles_demo;
 
-import android.app.Activity;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
-import android.view.View;
 
 import com.boe.gles_demo.helper.CameraHelper;
 import com.boe.gles_demo.helper.LogHelper;
 import com.boe.gles_demo.helper.TextureHelper;
-import com.boe.gles_demo.shape.Mallet;
-import com.boe.gles_demo.shape.Table;
 import com.boe.gles_demo.shader.ColorShaderProgram;
 import com.boe.gles_demo.shader.TextureShaderProgram;
+import com.boe.gles_demo.shape.Mallet;
+import com.boe.gles_demo.shape.Table;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -28,28 +26,23 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     ColorShaderProgram colorShaderProgram;
     int textureId;
 
+    float angle = 0;
+    long lastTick = System.currentTimeMillis();
+    boolean enableAnim = true;
+
     public MyRenderer(Context context) {
         this.context = context;
     }
 
+    public void toggleAnim() {
+        enableAnim = !enableAnim;
+    }
+
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        ((Activity) context).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                ((Activity) context).findViewById(R.id.btnRotate).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        enableAnim = !enableAnim;
-                    }
-                });
-            }
-        });
-
         GLES20.glEnable(GL10.GL_DEPTH_TEST); //开启深度测试
         GLES20.glClearColor(0f, 0f, 0f, 1f);
     }
-
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
@@ -59,19 +52,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         GLES20.glViewport(0, 0, width, height);
 
         // 创建各个物理对象、program、加载纹理
+        // ------------
         table = new Table();
         mallet = new Mallet();
-
         textureShaderProgram = new TextureShaderProgram(context);
         colorShaderProgram = new ColorShaderProgram(context);
-
         textureId = TextureHelper.loadTexture(context, R.drawable.air_hockey_surface);
     }
-
-
-    float angle = 0;
-    long lastTick = System.currentTimeMillis();
-    boolean enableAnim = true;
 
     @Override
     public void onDrawFrame(GL10 gl) {
@@ -79,13 +66,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         GLES20.glClearColor(0f, 0f, 0f, 0f);
 
-
-        // 夹带私货，按时间旋转
+        // 按时间旋转
         if (enableAnim && System.currentTimeMillis() - lastTick > 10) {
             angle -= 0.6;
             lastTick = System.currentTimeMillis();
         }
 
+        // 透视投影变换
         float[] projectionMatrix = CameraHelper.getMVP(SCREEN_WIDTH, SCREEN_HEIGHT, angle);
 
         // 绘制Table
@@ -105,7 +92,5 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         mallet.bindData(colorShaderProgram);
         mallet.draw();
         colorShaderProgram.release();
-
-
     }
 }

@@ -14,6 +14,14 @@ import android.opengl.GLES20;
 import com.boe.gles_demo.R;
 import com.boe.gles_demo.helper.LogHelper;
 
+/**
+ * 纹理渲染
+ *
+ * 输入：
+ * - MVP
+ * - 纹理
+ * - 纹理UV
+ */
 public class TextureShaderProgram extends ShaderProgram {
 
     // uniform location

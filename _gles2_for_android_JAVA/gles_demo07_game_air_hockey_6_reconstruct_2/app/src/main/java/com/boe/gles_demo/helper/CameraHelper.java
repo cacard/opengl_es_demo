@@ -1,10 +1,17 @@
 package com.boe.gles_demo.helper;
 
-import android.opengl.GLES20;
 import android.opengl.Matrix;
 
 public class CameraHelper {
 
+    /**
+     * 获取变换MVP矩阵
+     *
+     * @param screenWidth
+     * @param screenHeight
+     * @param angle
+     * @return
+     */
     public static float[] getMVP(int screenWidth, int screenHeight, float angle) {
 
         final float[] projectionMatrix = new float[16];
