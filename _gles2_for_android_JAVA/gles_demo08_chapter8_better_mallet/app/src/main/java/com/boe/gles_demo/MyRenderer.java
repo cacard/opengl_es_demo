@@ -10,6 +10,8 @@ import com.boe.gles_demo.helper.TextureHelper;
 import com.boe.gles_demo.shader.ColorShaderProgram;
 import com.boe.gles_demo.shader.TextureShaderProgram;
 import com.boe.gles_demo.shape.Mallet;
+import com.boe.gles_demo.shape.Mallet2;
+import com.boe.gles_demo.shape.Puck;
 import com.boe.gles_demo.shape.Table;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -21,7 +23,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     int SCREEN_HEIGHT = 600;
 
     Table table;
-    Mallet mallet;
+    Mallet2 mallet;
+    Puck puck;
     TextureShaderProgram textureShaderProgram;
     ColorShaderProgram colorShaderProgram;
     int textureId;
@@ -54,7 +57,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         // 创建各个物理对象、program、加载纹理
         // ------------
         table = new Table();
-        mallet = new Mallet();
+        mallet = new Mallet2(0.1f, 0.3f, 15);
+        puck = new Puck(0.2f, 0.1f, 15);
         textureShaderProgram = new TextureShaderProgram(context);
         colorShaderProgram = new ColorShaderProgram(context);
         textureId = TextureHelper.loadTexture(context, R.drawable.air_hockey_surface);
@@ -84,13 +88,21 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         table.draw();
         textureShaderProgram.release();
 
-
         // 绘制Mallet
         // ------------
         colorShaderProgram.useProgram();
         colorShaderProgram.setUniformMatrix(projectionMatrix);
+        colorShaderProgram.setUniformColor(0, 1, 0);
         mallet.bindData(colorShaderProgram);
         mallet.draw();
+        colorShaderProgram.release();
+
+        // 绘制冰球
+        // ------------
+        colorShaderProgram.useProgram();
+        colorShaderProgram.setUniformMatrix(projectionMatrix);
+        puck.bindData(colorShaderProgram);
+        puck.draw();
         colorShaderProgram.release();
     }
 }

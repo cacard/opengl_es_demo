@@ -29,9 +29,15 @@ public class ShaderProgram {
     protected static final String A_COLOR = "a_Color";
 
     /**
+     * 通过unifrom传入颜色值，用于那种不是通过顶点属性传入颜色值的场景
+     */
+    protected static final String U_COLOR = "u_Color";
+
+    /**
      * 顶点属性：UV
      */
     protected static final String A_TEXTURE_COORDINATES = "a_TextureCoordinates";
+
 
     /**
      * program id
