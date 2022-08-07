@@ -21,11 +21,11 @@ public class CameraHelper {
 
         // Model矩阵变换
         Matrix.setIdentityM(modelMatrix, 0); // Model矩阵初始为单位矩阵
-        Matrix.translateM(modelMatrix, 0, 0f, 0f, -2f);
+        Matrix.translateM(modelMatrix, 0, 0f, 0f, -1f);
 
         // 对Model矩阵做旋转 ———— 这个其实就是 View 吧，相当于 V * M 了！！！
         Matrix.translateM(modelMatrix, 0, 0f, 0f, -2.5f);
-        Matrix.rotateM(modelMatrix, 0, angle, 1f, 1, 1f);
+        Matrix.rotateM(modelMatrix, 0, angle, 1f, 1f, 1f);
 
         // P * M
         final float[] temp = new float[16];

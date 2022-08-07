@@ -3,6 +3,7 @@ package com.boe.gles_demo;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.opengl.Matrix;
 
 import com.boe.gles_demo.helper.CameraHelper;
 import com.boe.gles_demo.helper.LogHelper;
@@ -57,7 +58,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         // ------------
         table = new Table();
         mallet = new Mallet2(0.1f, 0.3f, 55);
-        puck = new Puck(0.2f, 0.1f, 55);
+        puck = new Puck(0.1f, 0.06f, 55);
         textureShaderProgram = new TextureShaderProgram(context);
         colorShaderProgram = new ColorShaderProgram(context);
         textureId = TextureHelper.loadTexture(context, R.drawable.air_hockey_surface);
@@ -70,27 +71,37 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         GLES20.glClearColor(0f, 0f, 0f, 0f);
 
         // 按时间旋转
-        if (enableAnim && System.currentTimeMillis() - lastTick > 10) {
-            angle -= 0.6;
+        if (enableAnim && System.currentTimeMillis() - lastTick > 14) {
+            angle -= 0.2;
             lastTick = System.currentTimeMillis();
         }
 
-        // 透视投影变换
+        // 透视投影变换：全局
         float[] projectionMatrix = CameraHelper.getMVP(SCREEN_WIDTH, SCREEN_HEIGHT, angle);
 
         // 绘制Table
         // ------------
-//        textureShaderProgram.useProgram();
-//        textureShaderProgram.setUniformTexture(textureId);
-//        textureShaderProgram.setUniformMatrix(projectionMatrix);
-//        table.bindData(textureShaderProgram);
-//        table.draw();
-//        textureShaderProgram.release();
+        textureShaderProgram.useProgram();
+        textureShaderProgram.setUniformTexture(textureId);
+        textureShaderProgram.setUniformMatrix(projectionMatrix);
+        table.bindData(textureShaderProgram);
+        table.draw();
+        textureShaderProgram.release();
+
 
         // 绘制Mallet
         // ------------
+
+        // MVP矩阵：设置初始位置
+        float[] projectionMatrixMallet = projectionMatrix.clone();
+        float[] modelTranslate = new float[16];
+        Matrix.setIdentityM(modelTranslate, 0);
+        Matrix.rotateM(modelTranslate, 0, 90,1f, 0f, 0f);
+        Matrix.translateM(modelTranslate, 0, 0, 0.15f, (float) Math.sin(angle/10));
+        Matrix.multiplyMM(projectionMatrixMallet, 0, projectionMatrixMallet,0, modelTranslate, 0);
+
         colorShaderProgram.useProgram();
-        colorShaderProgram.setUniformMatrix(projectionMatrix);
+        colorShaderProgram.setUniformMatrix(projectionMatrixMallet);
         colorShaderProgram.setUniformColor(0, 1, 0);
         mallet.bindData(colorShaderProgram);
         mallet.draw();
@@ -98,8 +109,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         // 绘制冰球
         // ------------
+
+        // MVP矩阵：设置初始位置
+        float[] projectionMatrixPuck = projectionMatrix.clone();
+        modelTranslate = new float[16];
+        Matrix.setIdentityM(modelTranslate, 0);
+        Matrix.rotateM(modelTranslate, 0, 90,1f, 0f, 0f);
+        Matrix.translateM(modelTranslate, 0, (float) Math.sin(angle/10), 0.03f, 0.3f);
+        Matrix.multiplyMM(projectionMatrixPuck, 0, projectionMatrixPuck,0, modelTranslate, 0);
+
         colorShaderProgram.useProgram();
-        colorShaderProgram.setUniformMatrix(projectionMatrix);
+        colorShaderProgram.setUniformMatrix(projectionMatrixPuck);
         colorShaderProgram.setUniformColor(1, 1, 0);
         puck.bindData(colorShaderProgram);
         puck.draw();
