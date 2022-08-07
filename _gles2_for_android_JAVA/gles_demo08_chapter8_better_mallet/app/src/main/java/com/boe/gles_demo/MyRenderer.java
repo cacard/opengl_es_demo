@@ -9,7 +9,6 @@ import com.boe.gles_demo.helper.LogHelper;
 import com.boe.gles_demo.helper.TextureHelper;
 import com.boe.gles_demo.shader.ColorShaderProgram;
 import com.boe.gles_demo.shader.TextureShaderProgram;
-import com.boe.gles_demo.shape.Mallet;
 import com.boe.gles_demo.shape.Mallet2;
 import com.boe.gles_demo.shape.Puck;
 import com.boe.gles_demo.shape.Table;
@@ -57,8 +56,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         // 创建各个物理对象、program、加载纹理
         // ------------
         table = new Table();
-        mallet = new Mallet2(0.1f, 0.3f, 15);
-        puck = new Puck(0.2f, 0.1f, 15);
+        mallet = new Mallet2(0.1f, 0.3f, 55);
+        puck = new Puck(0.2f, 0.1f, 55);
         textureShaderProgram = new TextureShaderProgram(context);
         colorShaderProgram = new ColorShaderProgram(context);
         textureId = TextureHelper.loadTexture(context, R.drawable.air_hockey_surface);
@@ -81,12 +80,12 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         // 绘制Table
         // ------------
-        textureShaderProgram.useProgram();
-        textureShaderProgram.setUniformTexture(textureId);
-        textureShaderProgram.setUniformMatrix(projectionMatrix);
-        table.bindData(textureShaderProgram);
-        table.draw();
-        textureShaderProgram.release();
+//        textureShaderProgram.useProgram();
+//        textureShaderProgram.setUniformTexture(textureId);
+//        textureShaderProgram.setUniformMatrix(projectionMatrix);
+//        table.bindData(textureShaderProgram);
+//        table.draw();
+//        textureShaderProgram.release();
 
         // 绘制Mallet
         // ------------
@@ -101,6 +100,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         // ------------
         colorShaderProgram.useProgram();
         colorShaderProgram.setUniformMatrix(projectionMatrix);
+        colorShaderProgram.setUniformColor(1, 1, 0);
         puck.bindData(colorShaderProgram);
         puck.draw();
         colorShaderProgram.release();

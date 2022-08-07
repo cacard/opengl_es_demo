@@ -12,6 +12,12 @@ import java.util.List;
 public class ObjectBuilder {
 
     /**
+     * 每个顶点单元包含几个float？
+     *  - 3个（xyz）
+     */
+    public static final int FLOATS_PER_VERTEX = 3;
+
+    /**
      * 顶点数据：是由外部传入的图形（圆、圆柱）对应的抽象数据而生成的！
      * 外部的圆、圆柱仅包含了简单的位置、大小、精细度信息，没有包含具体顶点数据！
      */
@@ -38,7 +44,7 @@ public class ObjectBuilder {
     public void appendCircle(Geometry.Circle circle, int numPoints) {
 
         // 开始绘制的顶点（注意：每个顶点是3个float）index
-        int drawStartVertexIndex = offset / Constants.SIZE_OF_FLOAT;
+        int drawStartVertexIndex = offset / FLOATS_PER_VERTEX;
         // 绘制的顶点数量
         int drawVertexCount = sizeOfCircleInVertices(numPoints);
 
@@ -78,7 +84,7 @@ public class ObjectBuilder {
      */
     public void appendOpenCylinder(Geometry.Cylinder cylinder, int numPoints) {
         // 开始绘制的顶点index
-        final int startVertex = offset / Constants.SIZE_OF_FLOAT;
+        final int startVertex = offset / FLOATS_PER_VERTEX;
         // 绘制的顶点数量
         final int numVertices = sizeOfOpenCylinderInVertices(numPoints);
         // y:开始值
@@ -105,7 +111,6 @@ public class ObjectBuilder {
             vertexData[offset++] = yEnd;
             vertexData[offset++] = z;
         }
-
 
         drawList.add(new DrawCommand() {
             @Override

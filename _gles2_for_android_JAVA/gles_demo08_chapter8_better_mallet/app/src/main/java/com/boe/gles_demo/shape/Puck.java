@@ -1,13 +1,9 @@
 package com.boe.gles_demo.shape;
 
-import static android.opengl.GLES20.GL_POINTS;
-import static android.opengl.GLES20.glDrawArrays;
-
 import com.boe.gles_demo.data.VertexArray;
 import com.boe.gles_demo.objects.Geometry;
 import com.boe.gles_demo.objects.ObjectBuilder;
 import com.boe.gles_demo.shader.ColorShaderProgram;
-import com.boe.gles_demo.shader.TextureShaderProgram;
 
 import java.util.List;
 
