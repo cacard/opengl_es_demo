@@ -64,6 +64,21 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         textureId = TextureHelper.loadTexture(context, R.drawable.air_hockey_surface);
     }
 
+    /**
+     * VP，即：没有model坐标的全局视角坐标
+     */
+    float[] viewProjectionMatrix = new float[16];
+
+    /**
+     * MVP，即：在VP的基础上，对Model坐标做了变换之后的变换矩阵
+     */
+    float[] modelViewProjectionMatrix = new float[16];
+
+    /**
+     * 临时变量，使用时应先重置为单位矩阵
+     */
+    float[] modelTranslateMatrix = new float[16];
+
     @Override
     public void onDrawFrame(GL10 gl) {
         LogHelper.log("->onDrawFrame()");
@@ -77,46 +92,56 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
         // 透视投影变换：全局
-        float[] projectionMatrix = CameraHelper.getMVP(SCREEN_WIDTH, SCREEN_HEIGHT, angle);
+        viewProjectionMatrix = CameraHelper.getMVP(SCREEN_WIDTH, SCREEN_HEIGHT, angle);
 
         // 绘制Table
         // ------------
         textureShaderProgram.useProgram();
         textureShaderProgram.setUniformTexture(textureId);
-        textureShaderProgram.setUniformMatrix(projectionMatrix);
+        textureShaderProgram.setUniformMatrix(viewProjectionMatrix);
         table.bindData(textureShaderProgram);
         table.draw();
         textureShaderProgram.release();
 
 
-        // 绘制Mallet
+        // 绘制Mallet：两个
         // ------------
 
         // MVP矩阵：设置初始位置
-        float[] projectionMatrixMallet = projectionMatrix.clone();
-        float[] modelTranslate = new float[16];
-        Matrix.setIdentityM(modelTranslate, 0);
-        Matrix.rotateM(modelTranslate, 0, 90,1f, 0f, 0f);
-        Matrix.translateM(modelTranslate, 0, 0, 0.15f, (float) Math.sin(angle/10));
-        Matrix.multiplyMM(projectionMatrixMallet, 0, projectionMatrixMallet,0, modelTranslate, 0);
+        float[] mallet1MVP = viewProjectionMatrix.clone();
+        Matrix.setIdentityM(modelTranslateMatrix, 0);
+        Matrix.rotateM(modelTranslateMatrix, 0, 90, 1f, 0f, 0f);
+        Matrix.translateM(modelTranslateMatrix, 0, 0, 0.15f, 0.5f);
+        Matrix.multiplyMM(mallet1MVP, 0, mallet1MVP, 0, modelTranslateMatrix, 0);
 
         colorShaderProgram.useProgram();
-        colorShaderProgram.setUniformMatrix(projectionMatrixMallet);
+        colorShaderProgram.setUniformMatrix(mallet1MVP);
         colorShaderProgram.setUniformColor(0, 1, 0);
         mallet.bindData(colorShaderProgram);
         mallet.draw();
+
+        float[] mallet2MVP = viewProjectionMatrix.clone();
+        Matrix.setIdentityM(modelTranslateMatrix, 0);
+        Matrix.rotateM(modelTranslateMatrix, 0, 90, 1f, 0f, 0f);
+        Matrix.translateM(modelTranslateMatrix, 0, 0, 0.15f, -0.5f);
+        Matrix.multiplyMM(mallet2MVP, 0, mallet2MVP, 0, modelTranslateMatrix, 0);
+
+        colorShaderProgram.setUniformMatrix(mallet2MVP);
+        colorShaderProgram.setUniformColor(0, 0, 1);
+        mallet.draw();
+
         colorShaderProgram.release();
 
         // 绘制冰球
         // ------------
 
         // MVP矩阵：设置初始位置
-        float[] projectionMatrixPuck = projectionMatrix.clone();
-        modelTranslate = new float[16];
-        Matrix.setIdentityM(modelTranslate, 0);
-        Matrix.rotateM(modelTranslate, 0, 90,1f, 0f, 0f);
-        Matrix.translateM(modelTranslate, 0, (float) Math.sin(angle/10), 0.03f, 0.3f);
-        Matrix.multiplyMM(projectionMatrixPuck, 0, projectionMatrixPuck,0, modelTranslate, 0);
+        float[] projectionMatrixPuck = viewProjectionMatrix.clone();
+        modelTranslateMatrix = new float[16];
+        Matrix.setIdentityM(modelTranslateMatrix, 0);
+        Matrix.rotateM(modelTranslateMatrix, 0, 90, 1f, 0f, 0f);
+        Matrix.translateM(modelTranslateMatrix, 0, 0f, 0.03f, (float) Math.sin(angle / 10) / 4f);
+        Matrix.multiplyMM(projectionMatrixPuck, 0, projectionMatrixPuck, 0, modelTranslateMatrix, 0);
 
         colorShaderProgram.useProgram();
         colorShaderProgram.setUniformMatrix(projectionMatrixPuck);
@@ -125,4 +150,5 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         puck.draw();
         colorShaderProgram.release();
     }
+
 }
