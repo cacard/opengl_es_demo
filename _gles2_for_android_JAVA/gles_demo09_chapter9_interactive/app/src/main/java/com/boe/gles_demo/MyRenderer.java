@@ -8,6 +8,7 @@ import android.opengl.Matrix;
 import com.boe.gles_demo.helper.CameraHelper;
 import com.boe.gles_demo.helper.LogHelper;
 import com.boe.gles_demo.helper.TextureHelper;
+import com.boe.gles_demo.objects.Geometry;
 import com.boe.gles_demo.shader.ColorShaderProgram;
 import com.boe.gles_demo.shader.TextureShaderProgram;
 import com.boe.gles_demo.shape.Mallet2;
@@ -29,9 +30,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     ColorShaderProgram colorShaderProgram;
     int textureId;
 
-    float angle = 0;
+    float angle = -45f;
     long lastTick = System.currentTimeMillis();
     boolean enableAnim = true;
+
+    boolean malletPressed = false;
+
+    // Mallet在3D空间中的位置
+    Geometry.Point blueMalletPosition;
+
+
+    // 反向投影矩阵
+    private final float[] invertedViewProjectionMatrix = new float[16];
 
     public MyRenderer(Context context) {
         this.context = context;
@@ -62,6 +72,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         textureShaderProgram = new TextureShaderProgram(context);
         colorShaderProgram = new ColorShaderProgram(context);
         textureId = TextureHelper.loadTexture(context, R.drawable.air_hockey_surface);
+
+        blueMalletPosition = new Geometry.Point(0f, mallet.height / 2, 0.4f);
     }
 
     /**
@@ -85,14 +97,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         GLES20.glClearColor(0f, 0f, 0f, 0f);
 
-        // 按时间旋转
-        if (enableAnim && System.currentTimeMillis() - lastTick > 14) {
-            angle -= 0.2;
-            lastTick = System.currentTimeMillis();
-        }
+//        // 按时间旋转
+//        if (enableAnim && System.currentTimeMillis() - lastTick > 14) {
+//            angle -= 0.2;
+//            lastTick = System.currentTimeMillis();
+//        }
 
         // 透视投影变换：全局
         viewProjectionMatrix = CameraHelper.getMVP(SCREEN_WIDTH, SCREEN_HEIGHT, angle);
+        Matrix.invertM(invertedViewProjectionMatrix, 0, viewProjectionMatrix, 0);
 
         // 绘制Table
         // ------------
@@ -149,6 +162,50 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         puck.bindData(colorShaderProgram);
         puck.draw();
         colorShaderProgram.release();
+    }
+
+    public void handleTouchPress(float x, float y) {
+        LogHelper.log(String.format("【@MyRenderer】handleTouchPress() x:%s,y:%s", x, y));
+
+        Geometry.Sphere malletBoundingSphere = new Geometry.Sphere(
+                new Geometry.Point(blueMalletPosition.x, blueMalletPosition.y, blueMalletPosition.z),
+                mallet.height / 2f);
+    }
+
+    public void handleTouchDrag(float x, float y) {
+        LogHelper.log(String.format("【@MyRenderer】handleTouchDrag() x:%s,y:%s", x, y));
+    }
+
+    // 将2D平面中已被标准化的坐标转化为3D世界中的射线
+    private Geometry.Ray convertNormalized2DPointToRay(float x, float y) {
+
+        // 触摸位置的 near 位置，z=-1
+        final float[] nearPointNdc = {x, y, -1, 1};
+        // 触摸位置的 far 位置，z=1
+        final float[] farPointNdc = {x, y, 1, 1};
+
+        final float[] nearPointWorld = new float[4];
+        final float[] farPointWorld = new float[4];
+
+        Matrix.multiplyMV(nearPointWorld, 0, invertedViewProjectionMatrix, 0, nearPointNdc, 0);
+        Matrix.multiplyMV(farPointWorld, 0, invertedViewProjectionMatrix, 0, farPointNdc, 0);
+
+        // 为什么要divide？
+        divideByW(nearPointWorld);
+        divideByW(farPointWorld);
+
+        Geometry.Point nearPoint =
+                new Geometry.Point(nearPointWorld[0], nearPointWorld[1], nearPointWorld[2]);
+        Geometry.Point farPoint =
+                new Geometry.Point(farPointWorld[0], farPointWorld[1], farPointWorld[2]);
+        return new Geometry.Ray(nearPoint, Geometry.vectorBetween(nearPoint, farPoint));
+
+    }
+
+    private void divideByW(float[] vector) {
+        vector[0] /= vector[3];
+        vector[1] /= vector[3];
+        vector[2] /= vector[3];
     }
 
 }

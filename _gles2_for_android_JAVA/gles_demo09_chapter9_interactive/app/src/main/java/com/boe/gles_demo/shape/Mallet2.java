@@ -9,10 +9,15 @@ import java.util.List;
 
 public class Mallet2 {
 
+    public final float radius;
+    public final float height;
+
     private final VertexArray vertexArray;
     private final List<ObjectBuilder.DrawCommand> drawList;
 
     public Mallet2(float radius, float height, int numPoints) {
+        this.radius = radius;
+        this.height = height;
         ObjectBuilder.GeneratedData generatedData = ObjectBuilder.createMallet(
                 new Geometry.Point(0f, 0f, 0f),
                 radius,
