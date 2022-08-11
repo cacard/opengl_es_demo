@@ -32,9 +32,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     ColorShaderProgram colorShaderProgram;
     int textureId;
 
-    float angle = -60f;
+    float angleDefault = -60f;
+    float angle = angleDefault;
     long lastTick = System.currentTimeMillis();
-    boolean enableAnim = true;
+    boolean enableAnim = false;
 
     // 是否点中了Mallet，根据触摸点生成的Ray与代表Mallet的球体是否有交集判定
     boolean malletPressed = false;
@@ -100,10 +101,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         GLES20.glClearColor(0f, 0f, 0f, 0f);
 
         // 按时间旋转
-//        if (enableAnim && System.currentTimeMillis() - lastTick > 14) {
-//            angle -= 0.2;
-//            lastTick = System.currentTimeMillis();
-//        }
+        if (enableAnim && System.currentTimeMillis() - lastTick > 14) {
+            angle -= 0.2;
+            lastTick = System.currentTimeMillis();
+            if (angle < -80) {
+                angle = angleDefault;
+                enableAnim = false;
+            }
+        }
 
         // 透视投影变换：全局
         viewProjectionMatrix = CameraHelper.getMVP(SCREEN_WIDTH, SCREEN_HEIGHT, angle);
@@ -172,6 +177,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         puck.draw();
 
         // 绘制Ray
+        // ----------
         if (shapeRay != null) {
             float[] rayMatrix = viewProjectionMatrix.clone();
             modelTranslateMatrix = new float[16];
@@ -179,7 +185,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             Matrix.rotateM(modelTranslateMatrix, 0, 1, 1f, 1f, 1f);
             Matrix.translateM(modelTranslateMatrix, 0, 0f, 0.5f, 0);
             Matrix.multiplyMM(rayMatrix, 0, rayMatrix, 0, modelTranslateMatrix, 0);
-            colorShaderProgram.setUniformMatrix(rayMatrix);
+            colorShaderProgram.setUniformMatrix(viewProjectionMatrix);
             colorShaderProgram.setUniformColor(1, 0, 0);
             shapeRay.bindData(colorShaderProgram);
             shapeRay.draw();
@@ -205,6 +211,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Geometry.Ray ray = convertNormalized2DPointToRay(x, y);
         rayOnPress = ray;
         shapeRay = new ShapeRay(rayOnPress);
+        enableAnim = true;
 
         // 根据蓝色Mallet在3D空间中的位置，生成一个球体
         Geometry.Sphere malletBoundingSphere = new Geometry.Sphere(
