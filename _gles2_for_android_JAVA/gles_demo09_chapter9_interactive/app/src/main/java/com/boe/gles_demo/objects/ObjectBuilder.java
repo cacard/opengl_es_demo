@@ -133,25 +133,23 @@ public class ObjectBuilder {
     /**
      * 添加一个射线（线段）
      */
-    public void appendRay(Geometry.Ray ray) {
+    public void appendLine(Geometry.Point point1, Geometry.Point point2) {
 
         // 开始绘制的顶点index
         final int startVertex = offset / FLOATS_PER_VERTEX;
         // 绘制的顶点数量
         final int numVertices = 2;
 
-        Geometry.Point pointStart = ray.point;
-        Geometry.Point pointEnd = ray.point.translate(ray.vector);
-        vertexData[offset++] = pointStart.x;
-        vertexData[offset++] = pointStart.y;
-        vertexData[offset++] = pointStart.z;
-        vertexData[offset++] = pointEnd.x;
-        vertexData[offset++] = pointEnd.y;
-        vertexData[offset++] = pointEnd.z;
+        vertexData[offset++] = point1.x;
+        vertexData[offset++] = point1.y;
+        vertexData[offset++] = point1.z;
+        vertexData[offset++] = point2.x;
+        vertexData[offset++] = point2.y;
+        vertexData[offset++] = point2.z;
         drawList.add(new DrawCommand() {
             @Override
             public void draw() {
-                GLES20.glDrawArrays(GL_LINES, startVertex, 2);
+                GLES20.glDrawArrays(GL_LINES, startVertex, numVertices);
             }
         });
     }
@@ -226,9 +224,13 @@ public class ObjectBuilder {
         return builder.build();
     }
 
+    /**
+     * Ray代表的线段
+     */
     public static GeneratedData createRay(Geometry.Ray ray) {
-        ObjectBuilder objectBuilder = new ObjectBuilder(2);
-        return objectBuilder.build();
+        ObjectBuilder builder = new ObjectBuilder(2);
+        builder.appendLine(ray.point, ray.point.translate(ray.vector));
+        return builder.build();
     }
 
     /**

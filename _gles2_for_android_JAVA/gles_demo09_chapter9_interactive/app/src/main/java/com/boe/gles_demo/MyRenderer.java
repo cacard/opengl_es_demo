@@ -27,7 +27,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     Table table;
     Mallet2 mallet;
     Puck puck;
-    ShapeRay shapeRay;
 
     TextureShaderProgram textureShaderProgram;
     ColorShaderProgram colorShaderProgram;
@@ -155,7 +154,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         colorShaderProgram.setUniformColor(0, 1, 0);
         mallet.draw();
 
-        colorShaderProgram.release();
 
         // 绘制冰球
         // ------------
@@ -168,18 +166,34 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Matrix.translateM(modelTranslateMatrix, 0, 0f, 0.03f, (float) Math.sin(angle / 10) / 4f);
         Matrix.multiplyMM(projectionMatrixPuck, 0, projectionMatrixPuck, 0, modelTranslateMatrix, 0);
 
-        colorShaderProgram.useProgram();
         colorShaderProgram.setUniformMatrix(projectionMatrixPuck);
         colorShaderProgram.setUniformColor(1, 1, 0);
         puck.bindData(colorShaderProgram);
         puck.draw();
+
+        // 绘制Ray
+        if (shapeRay != null) {
+            float[] rayMatrix = viewProjectionMatrix.clone();
+            modelTranslateMatrix = new float[16];
+            Matrix.setIdentityM(modelTranslateMatrix, 0);
+            Matrix.rotateM(modelTranslateMatrix, 0, 1, 1f, 1f, 1f);
+            Matrix.translateM(modelTranslateMatrix, 0, 0f, 0.5f, 0);
+            Matrix.multiplyMM(rayMatrix, 0, rayMatrix, 0, modelTranslateMatrix, 0);
+            colorShaderProgram.setUniformMatrix(rayMatrix);
+            colorShaderProgram.setUniformColor(1, 0, 0);
+            shapeRay.bindData(colorShaderProgram);
+            shapeRay.draw();
+        }
+
         colorShaderProgram.release();
 
 
-
-
-
     }
+
+    Geometry.Ray rayOnPress;
+    ShapeRay shapeRay;
+
+    Geometry.Sphere sphereOnPress;
 
     /**
      * 鼠标按下时
@@ -189,11 +203,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         // 将屏幕2D转化为3D空间中的射线（线段）
         Geometry.Ray ray = convertNormalized2DPointToRay(x, y);
+        rayOnPress = ray;
+        shapeRay = new ShapeRay(rayOnPress);
 
         // 根据蓝色Mallet在3D空间中的位置，生成一个球体
         Geometry.Sphere malletBoundingSphere = new Geometry.Sphere(
                 new Geometry.Point(blueMalletPosition.x, blueMalletPosition.y, blueMalletPosition.z),
                 mallet.height / 2f);
+        sphereOnPress = malletBoundingSphere;
 
         malletPressed = Geometry.intersects(malletBoundingSphere, ray);
         LogHelper.log(String.format("【@MyRenderer】handleTouchPress() malletPressed:%s", malletPressed));
