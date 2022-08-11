@@ -13,6 +13,7 @@ import com.boe.gles_demo.shader.ColorShaderProgram;
 import com.boe.gles_demo.shader.TextureShaderProgram;
 import com.boe.gles_demo.shape.Mallet2;
 import com.boe.gles_demo.shape.Puck;
+import com.boe.gles_demo.shape.ShapeRay;
 import com.boe.gles_demo.shape.Table;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -26,19 +27,20 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     Table table;
     Mallet2 mallet;
     Puck puck;
+    ShapeRay shapeRay;
+
     TextureShaderProgram textureShaderProgram;
     ColorShaderProgram colorShaderProgram;
     int textureId;
 
-    float angle = -45f;
+    float angle = -60f;
     long lastTick = System.currentTimeMillis();
     boolean enableAnim = true;
 
+    // 是否点中了Mallet，根据触摸点生成的Ray与代表Mallet的球体是否有交集判定
     boolean malletPressed = false;
-
-    // Mallet在3D空间中的位置
+    // Mallet在3D空间中的位置，即：通过用户触摸点更新Mallet的位置
     Geometry.Point blueMalletPosition;
-
 
     // 反向投影矩阵
     private final float[] invertedViewProjectionMatrix = new float[16];
@@ -73,7 +75,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         colorShaderProgram = new ColorShaderProgram(context);
         textureId = TextureHelper.loadTexture(context, R.drawable.air_hockey_surface);
 
-        blueMalletPosition = new Geometry.Point(0f, mallet.height / 2, 0.4f);
+        // 初始化蓝色Mallet的位置，在桌板下侧中间位置
+        blueMalletPosition = new Geometry.Point(0f, mallet.height / 2, -0.5f);
     }
 
     /**
@@ -93,11 +96,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        LogHelper.log("->onDrawFrame()");
+        //LogHelper.log("->onDrawFrame()");
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         GLES20.glClearColor(0f, 0f, 0f, 0f);
 
-//        // 按时间旋转
+        // 按时间旋转
 //        if (enableAnim && System.currentTimeMillis() - lastTick > 14) {
 //            angle -= 0.2;
 //            lastTick = System.currentTimeMillis();
@@ -117,30 +120,39 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         textureShaderProgram.release();
 
 
+
         // 绘制Mallet：两个
         // ------------
 
-        // MVP矩阵：设置初始位置
+        // Mallet蓝色
         float[] mallet1MVP = viewProjectionMatrix.clone();
         Matrix.setIdentityM(modelTranslateMatrix, 0);
+        // 旋转Mallet到正常角度
         Matrix.rotateM(modelTranslateMatrix, 0, 90, 1f, 0f, 0f);
-        Matrix.translateM(modelTranslateMatrix, 0, 0, 0.15f, 0.5f);
+        // 调整Mallet的位置到初始位置
+        //Matrix.translateM(modelTranslateMatrix, 0, 0, mallet.height/2f, 0f);
+        Matrix.translateM(modelTranslateMatrix,0, blueMalletPosition.x, blueMalletPosition.y, -blueMalletPosition.z); // todo:???
         Matrix.multiplyMM(mallet1MVP, 0, mallet1MVP, 0, modelTranslateMatrix, 0);
 
         colorShaderProgram.useProgram();
         colorShaderProgram.setUniformMatrix(mallet1MVP);
-        colorShaderProgram.setUniformColor(0, 1, 0);
+        colorShaderProgram.setUniformColor(0, 0, 1);
         mallet.bindData(colorShaderProgram);
         mallet.draw();
 
+        // Mallet绿色
         float[] mallet2MVP = viewProjectionMatrix.clone();
         Matrix.setIdentityM(modelTranslateMatrix, 0);
+        // 旋转Mallet到正常角度
         Matrix.rotateM(modelTranslateMatrix, 0, 90, 1f, 0f, 0f);
-        Matrix.translateM(modelTranslateMatrix, 0, 0, 0.15f, -0.5f);
+        // 调整Mallet的位置到初始位置
+        Matrix.translateM(modelTranslateMatrix, 0, 0, mallet.height/2f, -0.5f);
+        // 根据触摸位置，继续调整Mallet的位置
+
         Matrix.multiplyMM(mallet2MVP, 0, mallet2MVP, 0, modelTranslateMatrix, 0);
 
         colorShaderProgram.setUniformMatrix(mallet2MVP);
-        colorShaderProgram.setUniformColor(0, 0, 1);
+        colorShaderProgram.setUniformColor(0, 1, 0);
         mallet.draw();
 
         colorShaderProgram.release();
@@ -162,18 +174,44 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         puck.bindData(colorShaderProgram);
         puck.draw();
         colorShaderProgram.release();
+
+
+
+
+
     }
 
+    /**
+     * 鼠标按下时
+     */
     public void handleTouchPress(float x, float y) {
         LogHelper.log(String.format("【@MyRenderer】handleTouchPress() x:%s,y:%s", x, y));
 
+        // 将屏幕2D转化为3D空间中的射线（线段）
+        Geometry.Ray ray = convertNormalized2DPointToRay(x, y);
+
+        // 根据蓝色Mallet在3D空间中的位置，生成一个球体
         Geometry.Sphere malletBoundingSphere = new Geometry.Sphere(
                 new Geometry.Point(blueMalletPosition.x, blueMalletPosition.y, blueMalletPosition.z),
                 mallet.height / 2f);
+
+        malletPressed = Geometry.intersects(malletBoundingSphere, ray);
+        LogHelper.log(String.format("【@MyRenderer】handleTouchPress() malletPressed:%s", malletPressed));
+
+        shapeRay = new ShapeRay(ray);
     }
 
     public void handleTouchDrag(float x, float y) {
         LogHelper.log(String.format("【@MyRenderer】handleTouchDrag() x:%s,y:%s", x, y));
+
+        if (malletPressed) {
+            Geometry.Ray ray = convertNormalized2DPointToRay(x, y);
+            // 生成一个平面，代表桌子
+            Geometry.Plane plane = new Geometry.Plane(new Geometry.Point(0, 0, 0), new Geometry.Vector(0, 1, 0));
+            Geometry.Point touchedPoint = Geometry.intersectionPoint(ray, plane);
+            blueMalletPosition = new Geometry.Point(touchedPoint.x, mallet.height / 2f, touchedPoint.z);
+            LogHelper.log(String.format("【@MyRenderer】handleTouchDrag() blueMalletPosition:%s", blueMalletPosition.toString()));
+        }
     }
 
     // 将2D平面中已被标准化的坐标转化为3D世界中的射线

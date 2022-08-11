@@ -1,5 +1,6 @@
 package com.boe.gles_demo.objects;
 
+import static android.opengl.GLES20.GL_LINES;
 import static android.opengl.GLES20.GL_TRIANGLE_STRIP;
 
 import android.opengl.GLES20;
@@ -9,11 +10,17 @@ import com.boe.gles_demo.Constants;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 物体建造器
+ * <p>
+ * 可以向当前物体添加：圆形、圆柱、圆球、平面等
+ * 生成连续的顶点数据和一组DrawList
+ */
 public class ObjectBuilder {
 
     /**
      * 每个顶点单元包含几个float？
-     *  - 3个（xyz）
+     * - 3个（xyz）
      */
     public static final int FLOATS_PER_VERTEX = 3;
 
@@ -28,10 +35,13 @@ public class ObjectBuilder {
     private int offset = 0;
 
     /**
-     * @param vertexCount 顶点数量：越多、越光滑
+     * 创建ObjectBuilder
+     *
+     * @param vertexCount 这个是顶点数量，每个顶点在这里是包含3个float
      */
     public ObjectBuilder(int vertexCount) {
-        vertexData = new float[vertexCount * Constants.SIZE_OF_FLOAT];
+        // todo:!!!这里应该是乘以3，虽然乘以4也是没问题的
+        vertexData = new float[vertexCount * FLOATS_PER_VERTEX];
     }
 
     /**
@@ -120,6 +130,32 @@ public class ObjectBuilder {
         });
     }
 
+    /**
+     * 添加一个射线（线段）
+     */
+    public void appendRay(Geometry.Ray ray) {
+
+        // 开始绘制的顶点index
+        final int startVertex = offset / FLOATS_PER_VERTEX;
+        // 绘制的顶点数量
+        final int numVertices = 2;
+
+        Geometry.Point pointStart = ray.point;
+        Geometry.Point pointEnd = ray.point.translate(ray.vector);
+        vertexData[offset++] = pointStart.x;
+        vertexData[offset++] = pointStart.y;
+        vertexData[offset++] = pointStart.z;
+        vertexData[offset++] = pointEnd.x;
+        vertexData[offset++] = pointEnd.y;
+        vertexData[offset++] = pointEnd.z;
+        drawList.add(new DrawCommand() {
+            @Override
+            public void draw() {
+                GLES20.glDrawArrays(GL_LINES, startVertex, 2);
+            }
+        });
+    }
+
     public GeneratedData build() {
         return new GeneratedData(vertexData, drawList);
     }
@@ -190,6 +226,11 @@ public class ObjectBuilder {
         return builder.build();
     }
 
+    public static GeneratedData createRay(Geometry.Ray ray) {
+        ObjectBuilder objectBuilder = new ObjectBuilder(2);
+        return objectBuilder.build();
+    }
+
     /**
      * 圆形（柱体顶部）的顶点数量
      * 使用TriangleFan绘制，圆形中心点算一个顶点，圆形边缘首位有一个重复的顶点
@@ -210,10 +251,6 @@ public class ObjectBuilder {
      */
     private static int sizeOfOpenCylinderInVertices(int numPoints) {
         return (numPoints + 1) * 2;
-    }
-
-    public static interface DrawCommand {
-        void draw();
     }
 
     /**

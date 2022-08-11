@@ -8,27 +8,16 @@ import com.boe.gles_demo.shader.ColorShaderProgram;
 
 import java.util.List;
 
-/**
- * 冰球
- */
-public class Puck {
+public class ShapeRay {
 
-    public final float radius, height;
+    Geometry.Ray ray;
 
-    // 顶点数据
     private final VertexArray vertexArray;
-
-    // 绘制数据DrawList
     private final List<DrawCommand> drawList;
 
-    public Puck(float radius, float height, int numPoints) {
-
-        this.radius = radius;
-        this.height = height;
-
-        ObjectBuilder.GeneratedData generatedData = ObjectBuilder.createPuck(
-                new Geometry.Cylinder(new Geometry.Point(0, 0, 0), radius, height),
-                numPoints);
+    public ShapeRay(Geometry.Ray ray) {
+        this.ray = ray;
+        ObjectBuilder.GeneratedData generatedData = ObjectBuilder.createRay(ray);
         vertexArray = new VertexArray(generatedData.vertexData);
         drawList = generatedData.drawList;
     }

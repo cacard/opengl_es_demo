@@ -1,6 +1,7 @@
 package com.boe.gles_demo.shape;
 
 import com.boe.gles_demo.data.VertexArray;
+import com.boe.gles_demo.objects.DrawCommand;
 import com.boe.gles_demo.objects.Geometry;
 import com.boe.gles_demo.objects.ObjectBuilder;
 import com.boe.gles_demo.shader.ColorShaderProgram;
@@ -13,7 +14,7 @@ public class Mallet2 {
     public final float height;
 
     private final VertexArray vertexArray;
-    private final List<ObjectBuilder.DrawCommand> drawList;
+    private final List<DrawCommand> drawList;
 
     public Mallet2(float radius, float height, int numPoints) {
         this.radius = radius;
@@ -35,7 +36,7 @@ public class Mallet2 {
 
     public void draw() {
         vertexArray.resetPosition();
-        for (ObjectBuilder.DrawCommand command : drawList) {
+        for (DrawCommand command : drawList) {
             command.draw();
         }
     }
