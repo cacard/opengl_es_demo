@@ -1,9 +1,12 @@
 package com.boe.gles_demo;
 
+import android.app.Activity;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.view.View;
+import android.widget.TextView;
 
 import com.boe.gles_demo.helper.CameraHelper;
 import com.boe.gles_demo.helper.LogHelper;
@@ -77,6 +80,109 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         // 初始化蓝色Mallet的位置，在桌板下侧中间位置
         blueMalletPosition = new Geometry.Point(0f, mallet.height / 2, -0.5f);
+
+        initListener();
+        updateTvInfo();
+    }
+
+
+    float modelZ = -1; //模型的z位置
+    float cameraFov = 45;
+    float cameraNear = 2f; // near一般不要设置为0
+    float cameraFar = 4;
+    float cameraAngle = 0;
+
+    void initListener() {
+        Activity activity = (Activity) context;
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                activity.findViewById(R.id.btnReset).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        modelZ = -1;
+                        cameraFov = 45;
+                        cameraNear = 2f;
+                        cameraFar = 4;
+                        cameraAngle = 0;
+                    }
+                });
+
+                activity.findViewById(R.id.btnCameraZAdd).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        modelZ += 0.1;
+                    }
+                });
+                activity.findViewById(R.id.btnCameraZMinus).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        modelZ -= 0.1;
+                    }
+                });
+                activity.findViewById(R.id.btnCameraNearAdd).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        cameraNear += 0.02;
+                    }
+                });
+                activity.findViewById(R.id.btnCameraNearMinus).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        cameraNear -= 0.02;
+                    }
+                });
+                activity.findViewById(R.id.btnCameraFarAdd).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        cameraFar += 0.02;
+                    }
+                });
+                activity.findViewById(R.id.btnCameraFarMinus).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        cameraFar -= 0.02;
+                    }
+                });
+                activity.findViewById(R.id.btnCameraAngleAdd).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        cameraAngle += 3;
+                    }
+                });
+                activity.findViewById(R.id.btnCameraAngleMinus).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        cameraAngle -= 3;
+                    }
+                });
+                activity.findViewById(R.id.btnCameraFovAdd).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        cameraFov += 1;
+                    }
+                });
+                activity.findViewById(R.id.btnCameraFovMinus).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        cameraFov -= 1;
+                    }
+                });
+            }
+        });
+    }
+
+    void updateTvInfo() {
+        Activity activity = (Activity) context;
+        ((Activity) context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ((TextView) activity.findViewById(R.id.tvInfo)).setText(
+                        String.format("fov:%.2f/near:%.6f far:%.6f/model-z:%.6f/angle:%.2f",
+                                cameraFov, cameraNear, cameraFar, modelZ, cameraAngle));
+            }
+        });
     }
 
     /**
@@ -101,17 +207,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         GLES20.glClearColor(0f, 0f, 0f, 0f);
 
         // 按时间旋转
-        if (enableAnim && System.currentTimeMillis() - lastTick > 14) {
-            angle -= 0.2;
+        if (System.currentTimeMillis() - lastTick > 60) {
             lastTick = System.currentTimeMillis();
-            if (angle < -80) {
-                angle = angleDefault;
-                enableAnim = false;
-            }
+            updateTvInfo();
         }
 
         // 透视投影变换：全局
-        viewProjectionMatrix = CameraHelper.getMVP(SCREEN_WIDTH, SCREEN_HEIGHT, angle);
+        viewProjectionMatrix = CameraHelper.getMVP(SCREEN_WIDTH, SCREEN_HEIGHT, cameraAngle, modelZ, cameraNear, cameraFov, cameraFar);
         Matrix.invertM(invertedViewProjectionMatrix, 0, viewProjectionMatrix, 0);
 
         // 绘制Table
@@ -124,7 +226,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         textureShaderProgram.release();
 
 
-
         // 绘制Mallet：两个
         // ------------
 
@@ -135,7 +236,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Matrix.rotateM(modelTranslateMatrix, 0, 90, 1f, 0f, 0f);
         // 调整Mallet的位置到初始位置
         //Matrix.translateM(modelTranslateMatrix, 0, 0, mallet.height/2f, 0f);
-        Matrix.translateM(modelTranslateMatrix,0, blueMalletPosition.x, blueMalletPosition.y, -blueMalletPosition.z); // todo:???
+        Matrix.translateM(modelTranslateMatrix, 0, blueMalletPosition.x, blueMalletPosition.y, -blueMalletPosition.z); // todo:???
         Matrix.multiplyMM(mallet1MVP, 0, mallet1MVP, 0, modelTranslateMatrix, 0);
 
         colorShaderProgram.useProgram();
@@ -150,7 +251,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         // 旋转Mallet到正常角度
         Matrix.rotateM(modelTranslateMatrix, 0, 90, 1f, 0f, 0f);
         // 调整Mallet的位置到初始位置
-        Matrix.translateM(modelTranslateMatrix, 0, 0, mallet.height/2f, -0.5f);
+        Matrix.translateM(modelTranslateMatrix, 0, 0, mallet.height / 2f, -0.5f);
         // 根据触摸位置，继续调整Mallet的位置
 
         Matrix.multiplyMM(mallet2MVP, 0, mallet2MVP, 0, modelTranslateMatrix, 0);

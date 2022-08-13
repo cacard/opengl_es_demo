@@ -11,15 +11,131 @@
         android:layout_height="match_parent"
         android:layout_centerInParent="true" />
 
-    <TextView
-        android:id="@+id/btnRotate"
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:background="#55ff0000"
-        android:padding="15dp"
-        android:textColor="@color/white"
-        android:text="旋转" />
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp"
+            android:background="#55ffffff"
+            android:padding="5dp"
+            android:textSize="13dp" />
+
+        <TextView
+            android:id="@+id/btnCameraZAdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp"
+            android:background="#55ffffff"
+            android:padding="5dp"
+            android:text="Z +"
+            android:textSize="9dp" />
+
+        <TextView
+            android:id="@+id/btnCameraZMinus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp"
+            android:background="#55ffffff"
+            android:padding="5dp"
+            android:text="Z -"
+            android:textSize="9dp" />
+
+        <TextView
+            android:id="@+id/btnCameraFovAdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp"
+            android:background="#55ffffff"
+            android:padding="5dp"
+            android:text="Fov+"
+            android:textSize="9dp" />
+
+        <TextView
+            android:id="@+id/btnCameraFovMinus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp"
+            android:background="#55ffffff"
+            android:padding="5dp"
+            android:text="Fov-"
+            android:textSize="9dp" />
+
+        <TextView
+            android:id="@+id/btnCameraNearAdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp"
+            android:background="#55ffffff"
+            android:padding="5dp"
+            android:text="Near+"
+            android:textSize="9dp" />
+
+        <TextView
+            android:id="@+id/btnCameraNearMinus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp"
+            android:background="#55ffffff"
+            android:padding="5dp"
+            android:text="Near-"
+            android:textSize="9dp" />
+
+        <TextView
+            android:id="@+id/btnCameraAngleAdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp"
+            android:background="#55ffffff"
+            android:padding="5dp"
+            android:text="Angle+"
+            android:textSize="9dp" />
+
+        <TextView
+            android:id="@+id/btnCameraAngleMinus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp"
+            android:background="#55ffffff"
+            android:padding="5dp"
+            android:text="Angle-"
+            android:textSize="9dp" />
+
+        <TextView
+            android:id="@+id/btnCameraFarAdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp"
+            android:background="#55ffffff"
+            android:padding="5dp"
+            android:text="Far+"
+            android:textSize="9dp" />
+
+        <TextView
+            android:id="@+id/btnCameraFarMinus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp"
+            android:background="#55ffffff"
+            android:padding="5dp"
+            android:text="Far-"
+            android:textSize="9dp" />
+
+        <TextView
+            android:id="@+id/btnReset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp"
+            android:background="#55ffffff"
+            android:textColor="#ff0000"
+            android:padding="5dp"
+            android:text="RESET"
+            android:textSize="9dp" />
+    </LinearLayout>
 
 </RelativeLayout>
