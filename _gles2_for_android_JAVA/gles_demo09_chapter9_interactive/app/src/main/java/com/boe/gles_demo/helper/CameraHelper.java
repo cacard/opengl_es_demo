@@ -25,7 +25,7 @@ public class CameraHelper {
 
         // 对Model矩阵做旋转 ———— 这个其实就是 View 吧，相当于 V * M 了！！！
         Matrix.translateM(modelMatrix, 0, 0f, 0f, -2f);
-        Matrix.rotateM(modelMatrix, 0, angle, 1f, 1f, 1f);
+        Matrix.rotateM(modelMatrix, 0, angle, 1f, 0f, 0f);
 
         // P * M
         final float[] temp = new float[16];
