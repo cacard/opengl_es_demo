@@ -14,20 +14,20 @@ public class CameraHelper {
      */
     public static float[] getMVP(int screenWidth, int screenHeight, float angle) {
 
+        // 透视矩阵
         final float[] projectionMatrix = new float[16];
-        final float[] modelMatrix = new float[16];
-
         MatrixHelper.perspectiveM(projectionMatrix, 45, (float) screenWidth / (float) screenHeight, 1f, 10f);
 
         // Model矩阵变换
-        Matrix.setIdentityM(modelMatrix, 0); // Model矩阵初始为单位矩阵
-        Matrix.translateM(modelMatrix, 0, 0f, 0f, -1f);
-
-        // 对Model矩阵做旋转 ———— 这个其实就是 View 吧，相当于 V * M 了！！！
-        Matrix.translateM(modelMatrix, 0, 0f, 0f, -2f);
+        final float[] modelMatrix = new float[16];
+        // Model矩阵初始为单位矩阵
+        Matrix.setIdentityM(modelMatrix, 0);
+        // 因为透视的near是1，所以，这里需要将模型移动到平接头体里
+        Matrix.translateM(modelMatrix, 0, 0f, 0f, -3f);
+        // 旋转模型
         Matrix.rotateM(modelMatrix, 0, angle, 1f, 0f, 0f);
 
-        // P * M
+        // P * (V) * M
         final float[] temp = new float[16];
         Matrix.multiplyMM(temp, 0, projectionMatrix, 0, modelMatrix, 0);
         System.arraycopy(temp, 0, projectionMatrix, 0, temp.length);

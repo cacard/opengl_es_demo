@@ -101,14 +101,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         GLES20.glClearColor(0f, 0f, 0f, 0f);
 
         // 按时间旋转
-//        if (enableAnim && System.currentTimeMillis() - lastTick > 14) {
-//            angle -= 0.2;
-//            lastTick = System.currentTimeMillis();
-//            if (angle < -80) {
-//                angle = angleDefault;
-//                enableAnim = false;
-//            }
-//        }
+        if (enableAnim && System.currentTimeMillis() - lastTick > 14) {
+            angle -= 0.2;
+            lastTick = System.currentTimeMillis();
+            if (angle < -80) {
+                angle = angleDefault;
+                enableAnim = false;
+            }
+        }
 
         // 透视投影变换：全局
         viewProjectionMatrix = CameraHelper.getMVP(SCREEN_WIDTH, SCREEN_HEIGHT, angle);
