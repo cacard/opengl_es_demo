@@ -32,7 +32,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     ColorShaderProgram colorShaderProgram;
     int textureId;
 
-    float angleDefault = -40f;
+    float angleDefault = -0f;
     float angle = angleDefault;
     long lastTick = System.currentTimeMillis();
     boolean enableAnim = false;
@@ -96,7 +96,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         if (enableAnim && System.currentTimeMillis() - lastTick > 14) {
             angle -= 0.2;
             lastTick = System.currentTimeMillis();
-            if (angle < -80) {
+            if (angle < -120) {
                 angle = angleDefault;
                 enableAnim = false;
             }
@@ -169,14 +169,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         // 绘制Ray
         // ----------
         if (shapeRay != null) {
-            //float[] rayMatrix = new float[16];
-            //Matrix.setIdentityM(rayMatrix, 0);
-            //modelTranslateMatrix = new float[16];
-            //Matrix.setIdentityM(modelTranslateMatrix, 0);
-            //Matrix.rotateM(modelTranslateMatrix, 0, 1, 1f, 1f, 1f);
-            //Matrix.translateM(modelTranslateMatrix, 0, 0f, 0.5f, 0);
-            //Matrix.multiplyMM(rayMatrix, 0, rayMatrix, 0, modelTranslateMatrix, 0);
-            colorShaderProgram.setUniformMatrix(projectionMatrix);
+            float[] rayMatrix = new float[16];
+            Matrix.setIdentityM(rayMatrix, 0);
+            tempModelMatrix = new float[16];
+            Matrix.setIdentityM(tempModelMatrix, 0);
+            //Matrix.rotateM(tempModelMatrix, 0, 0, 0f, 0f, 1f);
+            //Matrix.translateM(tempModelMatrix, 0, 0f, 0.5f, 0);
+            //Matrix.multiplyMM(rayMatrix, 0, rayMatrix, 0, tempModelMatrix, 0);
+            colorShaderProgram.setUniformMatrix(rayMatrix);
             colorShaderProgram.setUniformColor(1, 0, 0);
             shapeRay.bindData(colorShaderProgram);
             shapeRay.draw();
@@ -219,17 +219,18 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     public void handleTouchDrag(float x, float y) {
         LogHelper.log(String.format("【@MyRenderer】handleTouchDrag() x:%s,y:%s/malletPressed:%s", x, y, malletPressed));
-
-        if (malletPressed) {
-            Geometry.Ray ray = convertNormalized2DPointToRay(x, y);
-            // 生成一个平面，代表桌子，而桌子的位置就是在原点，方向是朝向Z正前方
-            Geometry.Plane plane = new Geometry.Plane(new Geometry.Point(0, 0, 0), new Geometry.Vector(0, 0, 0.01f));
-            Geometry.Point touchedPoint = Geometry.intersectionPoint(ray, plane);
-
-            // 根据触摸点更新BlueMallet的位置，【Z值的特殊处理：因为触摸点是触摸的桌面，所以Mallet要高出桌面】
-            blueMalletPosition = new Geometry.Point(touchedPoint.x, touchedPoint.y, touchedPoint.z + (mallet.height / 2f + 0.001f));
-            LogHelper.log(String.format("【@MyRenderer】handleTouchDrag() blueMalletPosition:%s", blueMalletPosition.toString()));
+        if (!malletPressed) {
+            return;
         }
+        Geometry.Ray ray = convertNormalized2DPointToRay(x, y);
+        // 生成一个平面，代表桌子，而桌子的位置就是在原点，方向是朝向Z正前方
+        Geometry.Plane plane = new Geometry.Plane(new Geometry.Point(0, 0, 0),
+                new Geometry.Vector(0, 0, 0.01f));
+        Geometry.Point touchedPoint = Geometry.intersectionPoint(ray, plane);
+        // 根据触摸点更新BlueMallet的位置，【Z值的特殊处理：因为触摸点是触摸的桌面，所以Mallet要高出桌面】
+        blueMalletPosition = new Geometry.Point(touchedPoint.x, touchedPoint.y, touchedPoint.z + (mallet.height / 2f + 0.001f));
+        LogHelper.log(String.format("【@MyRenderer】handleTouchDrag() blueMalletPosition:%s", blueMalletPosition.toString()));
+
     }
 
     // 将2D平面中已被标准化的坐标转化为3D世界中的射线
