@@ -45,7 +45,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
                 ((Activity) getContext()).findViewById(R.id.btnRotate).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        renderer.toggleAnim();
+                        //renderer.toggleAnim();
                     }
                 });
             }
