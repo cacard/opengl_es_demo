@@ -15,7 +15,7 @@ public class Geometry {
      * 3D空间中的点
      */
     public static class Point {
-        public float x, y, z;
+        public final float x, y, z;
 
         public Point(float x, float y, float z) {
             this.x = x;

@@ -17,7 +17,7 @@ public class CameraHelper {
         // 透视矩阵
         final float[] projectionMatrix = new float[16];
         // 透视矩阵：near1, far10
-        MatrixHelper.perspectiveM(projectionMatrix, 45, (float) screenWidth / (float) screenHeight, 0.001f, 15f);
+        MatrixHelper.perspectiveM(projectionMatrix, 45, (float) screenWidth / (float) screenHeight, 0.001f, 5f);
 
         // Model矩阵变换
         final float[] modelMatrix = new float[16];

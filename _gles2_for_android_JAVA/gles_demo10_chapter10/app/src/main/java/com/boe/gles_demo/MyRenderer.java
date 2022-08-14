@@ -32,7 +32,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     ColorShaderProgram colorShaderProgram;
     int textureId;
 
-    float angleDefault = -30f;
+    float angleDefault = -0f;
     float angle = angleDefault;
     long lastTick = System.currentTimeMillis();
     boolean enableAnim = false;
@@ -49,7 +49,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     float[] tempModelMatrix = new float[16];
     // 基础MVP的逆矩阵。【逆矩阵就是：最初的矩阵做了变换之后，如果再乘以这个逆矩阵就变成了最初的矩阵】
     private final float[] invertedViewProjectionMatrix = new float[16];
-    private float[] invertedViewProjectionMatrixInit;
+
 
     public MyRenderer(Context context) {
         this.context = context;
@@ -83,8 +83,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         // 初始化蓝色Mallet的位置，在桌板下侧中间位置
         blueMalletPosition = new Geometry.Point(0f, -0.4f, (mallet.height / 2f + 0.001f));
-
-        invertedViewProjectionMatrixInit = CameraHelper.getMVP(SCREEN_WIDTH, SCREEN_HEIGHT, angle);
     }
 
 
@@ -171,13 +169,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         // 绘制Ray
         // ----------
         if (shapeRay != null) {
-            float[] rayMatrix = projectionMatrix.clone();
-            //Matrix.setIdentityM(rayMatrix, 0);
+            float[] rayMatrix = new float[16];
+            Matrix.setIdentityM(rayMatrix, 0);
             tempModelMatrix = new float[16];
             Matrix.setIdentityM(tempModelMatrix, 0);
-            //Matrix.rotateM(tempModelMatrix, 0, 0.01f, 1f, 0f, 0f);
-            Matrix.translateM(tempModelMatrix, 0, 0.001f, 0.001f, 0.001f);
-            Matrix.multiplyMM(rayMatrix, 0, rayMatrix, 0, tempModelMatrix, 0);
+            //Matrix.rotateM(tempModelMatrix, 0, 0, 0f, 0f, 1f);
+            //Matrix.translateM(tempModelMatrix, 0, 0f, 0.5f, 0);
+            //Matrix.multiplyMM(rayMatrix, 0, rayMatrix, 0, tempModelMatrix, 0);
             colorShaderProgram.setUniformMatrix(rayMatrix);
             colorShaderProgram.setUniformColor(1, 0, 0);
             shapeRay.bindData(colorShaderProgram);
@@ -259,10 +257,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 new Geometry.Point(nearPointWorld[0], nearPointWorld[1], nearPointWorld[2]);
         Geometry.Point farPoint =
                 new Geometry.Point(farPointWorld[0], farPointWorld[1], farPointWorld[2]);
-
-        // !!! 少量偏移，为了能够显示出ShapeRay
-        //farPoint.x *= 1.5f;
-
         return new Geometry.Ray(nearPoint, Geometry.vectorBetween(nearPoint, farPoint));
 
     }
