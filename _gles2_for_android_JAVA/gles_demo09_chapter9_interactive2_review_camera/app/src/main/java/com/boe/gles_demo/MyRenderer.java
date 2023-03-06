@@ -223,8 +223,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         textureShaderProgram.setUniformMatrix(viewProjectionMatrix);
         table.bindData(textureShaderProgram);
         table.draw();
-        textureShaderProgram.release();
 
+        textureShaderProgram.release();
 
         // 绘制Mallet：两个
         // ------------

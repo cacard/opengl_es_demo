@@ -242,17 +242,14 @@ public class Geometry {
     }
 
     /**
-     * 相交判定：一个射线与一个平面是否相交
-     * 这个相对比较复杂：TODO:需要具体理解
+     * 一个射线与一个平面的交点
      */
     public static Point intersectionPoint(Ray ray, Plane plane) {
         // 射线与平面法线点的连线的向量
         Vector rayToPlaneVector = vectorBetween(ray.point, plane.point);
         // 缩放系数
-        float scaleFactor = rayToPlaneVector.dotProduct(plane.normal)
-                / ray.vector.dotProduct(plane.normal);
-        Point intersectionPoint = ray.point.translate(ray.vector.scale(scaleFactor));
-        return intersectionPoint;
+        float scaleFactor = rayToPlaneVector.dotProduct(plane.normal) / ray.vector.dotProduct(plane.normal);
+        return ray.point.translate(ray.vector.scale(scaleFactor));
     }
 
 
